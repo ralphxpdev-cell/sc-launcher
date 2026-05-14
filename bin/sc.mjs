@@ -113,7 +113,7 @@ writeFileSync(piSettingsPath, JSON.stringify(piSettings, null, 2), 'utf-8')
 
 // 6. Pi 실행
 console.log('\n🚀 Pi 시작!\n')
-const pi = spawn('pi', [], {
+const pi = spawn('pi', ['--model', 'gemini-2.5-flash'], {
   stdio: 'inherit',
   shell: true,
   env: { ...process.env, GEMINI_API_KEY: apiKey },
