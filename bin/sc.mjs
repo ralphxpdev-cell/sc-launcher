@@ -108,11 +108,8 @@ const piSettingsPath = join(piSettingsDir, 'settings.json')
 mkdirSync(piSettingsDir, { recursive: true })
 let piSettings = {}
 try { piSettings = JSON.parse(readFileSync(piSettingsPath, 'utf-8')) } catch {}
-if (!piSettings.defaultModel) {
-  piSettings.defaultModel = 'gemini-2.5-flash'
-  writeFileSync(piSettingsPath, JSON.stringify(piSettings, null, 2), 'utf-8')
-  console.log('⚙️  모델 설정: gemini-2.5-flash')
-}
+piSettings.defaultModel = 'gemini-2.5-flash'
+writeFileSync(piSettingsPath, JSON.stringify(piSettings, null, 2), 'utf-8')
 
 // 6. Pi 실행
 console.log('\n🚀 Pi 시작!\n')
