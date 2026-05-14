@@ -1,0 +1,12 @@
+{
+  "name": "survey-corps-launcher",
+  "version": "1.0.0",
+  "description": "Survey Corps Pi 런처",
+  "type": "module",
+  "bin": {
+    "sc": "./bin/sc.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
