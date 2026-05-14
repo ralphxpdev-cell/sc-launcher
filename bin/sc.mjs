@@ -106,6 +106,7 @@ try {
 console.log('\n🚀 Pi 시작!\n')
 const pi = spawn('pi', [], {
   stdio: 'inherit',
+  shell: true,
   env: { ...process.env, GEMINI_API_KEY: apiKey },
 })
 
