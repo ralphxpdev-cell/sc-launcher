@@ -102,7 +102,19 @@ try {
   console.log(' ⚠️  실패 (계속 진행)')
 }
 
-// 5. Pi 실행
+// 5. Pi 설정 — 모델 고정
+const piSettingsDir = join(homedir(), '.pi', 'agent')
+const piSettingsPath = join(piSettingsDir, 'settings.json')
+mkdirSync(piSettingsDir, { recursive: true })
+let piSettings = {}
+try { piSettings = JSON.parse(readFileSync(piSettingsPath, 'utf-8')) } catch {}
+if (!piSettings.defaultModel) {
+  piSettings.defaultModel = 'gemini-2.5-flash'
+  writeFileSync(piSettingsPath, JSON.stringify(piSettings, null, 2), 'utf-8')
+  console.log('⚙️  모델 설정: gemini-2.5-flash')
+}
+
+// 6. Pi 실행
 console.log('\n🚀 Pi 시작!\n')
 const pi = spawn('pi', [], {
   stdio: 'inherit',
@@ -110,7 +122,7 @@ const pi = spawn('pi', [], {
   env: { ...process.env, GEMINI_API_KEY: apiKey },
 })
 
-// 6. 종료 시 자동 저장
+// 7. 종료 시 자동 저장
 pi.on('exit', async () => {
   console.log('\n💾 세션 저장 중...')
   try {
