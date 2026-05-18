@@ -170,24 +170,24 @@ if (!piOk) {
   execSync('npm install -g @earendil-works/pi-coding-agent', { stdio: 'inherit' })
 }
 
-// 3-1. Ollama 선택 시 자동 설치
-if (provider.id === 'ollama') {
+// 3-1. Ollama 설치 확인 (항상) — 없으면 설치 후 모델 백그라운드 다운로드
+if (process.platform !== 'win32') {
   let ollamaOk = false
   try { execSync('ollama --version', { stdio: 'ignore' }); ollamaOk = true } catch {}
   if (!ollamaOk) {
     console.log('📦 Ollama 설치 중...')
-    if (process.platform === 'win32') {
-      console.error('Windows는 https://ollama.com/download 에서 직접 설치해주세요.')
-      process.exit(1)
-    }
     execSync('curl -fsSL https://ollama.com/install.sh | sh', { stdio: 'inherit' })
-  }
-  // 모델 없으면 자동 pull
-  try {
-    execSync('ollama list', { stdio: 'ignore' })
-  } catch {
-    console.log('📦 Ollama 모델(llama3.2) 다운로드 중... (처음 한 번만)')
-    execSync('ollama pull llama3.2', { stdio: 'inherit' })
+    console.log('📦 Ollama 모델 다운로드 중 (백그라운드)...')
+    spawn('ollama', ['pull', 'llama3.2'], { stdio: 'ignore', detached: true }).unref()
+  } else {
+    // 설치는 됐지만 모델 없으면 백그라운드 pull
+    try {
+      const list = execSync('ollama list', { encoding: 'utf-8' })
+      if (!list.includes('llama3.2')) {
+        console.log('📦 Ollama 모델 다운로드 중 (백그라운드)...')
+        spawn('ollama', ['pull', 'llama3.2'], { stdio: 'ignore', detached: true }).unref()
+      }
+    } catch {}
   }
 }
 
