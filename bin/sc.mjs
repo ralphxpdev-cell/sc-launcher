@@ -198,13 +198,22 @@ piSettings.defaultModel = provider.model
 writeFileSync(piSettingsPath, JSON.stringify(piSettings, null, 2), 'utf-8')
 
 // 7. Pi 실행
-console.log('\n🚀 Pi 시작!\n')
+console.log('\n🚀 Pi 시작! (Ctrl+P 로 모델 전환)\n')
 const piCmd = process.platform === 'win32' ? 'pi.cmd' : 'pi'
 const env   = { ...process.env }
-if (provider.envKey && provider.apiKey) env[provider.envKey] = provider.apiKey
-if (provider.id === 'ollama') env['OLLAMA_HOST'] = 'http://localhost:11434'
 
-const pi = spawn(piCmd, ['--model', provider.model], { stdio: 'inherit', env })
+// 사용 가능한 모든 키 env에 주입
+const availableModels = []
+for (const p of PROVIDERS) {
+  if (p.id === 'ollama') { availableModels.push(p.model); continue }
+  const key = p.keyField === 'api_key' ? row.api_key : row.keys?.[p.keyField]
+  if (key && p.envKey) {
+    env[p.envKey] = key
+    availableModels.push(p.model)
+  }
+}
+
+const pi = spawn(piCmd, ['--model', provider.model, '--models', availableModels.join(',')], { stdio: 'inherit', env })
 
 // 8. 종료 시 세션 저장
 pi.on('exit', async () => {
