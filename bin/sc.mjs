@@ -253,7 +253,7 @@ for (const p of PROVIDERS) {
   }
 }
 
-const pi = spawn(piCmd, ['--model', provider.model, '--models', availableModels.join(',')], { stdio: 'inherit', env })
+const pi = spawn(piCmd, ['--model', provider.model, '--models', availableModels.join(',')], { stdio: 'inherit', env, shell: process.platform === 'win32' })
 
 // 8. 종료 시 세션 저장
 pi.on('exit', async () => {
