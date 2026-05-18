@@ -5,7 +5,7 @@ import { homedir } from 'os'
 import { join } from 'path'
 import { createInterface } from 'readline'
 
-const SC_URL  = 'https://brief-maker-ralphs-projects-d170db01.vercel.app'
+const SC_URL  = 'https://brief-maker-nine.vercel.app'
 const SB_URL  = 'https://qitxwciaphfftuisyjrg.supabase.co'
 const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpdHh3Y2lhcGhmZnR1aXN5anJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1NjMwMTcsImV4cCI6MjA4OTEzOTAxN30.dkgdVwG_8W1CzKQhFe5REr-5n27sBzsMvxDxwzeCni0'
 const CONFIG  = join(homedir(), '.sc-config.json')
