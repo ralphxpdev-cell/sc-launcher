@@ -188,6 +188,25 @@ if (process.platform !== 'win32') {
         spawn('ollama', ['pull', 'llama3.2'], { stdio: 'ignore', detached: true }).unref()
       }
     } catch {}
+    // Ollama 서버 실행 (안 떠있으면 자동 시작)
+    try { execSync('ollama ps', { stdio: 'ignore' }) } catch {
+      console.log('🦙 Ollama 서버 시작 중...')
+      spawn('ollama', ['serve'], { stdio: 'ignore', detached: true }).unref()
+      execSync('sleep 2')
+    }
+    // Pi models.json에 Ollama 등록
+    const modelsPath = join(homedir(), '.pi', 'agent', 'models.json')
+    let modelsJson = {}
+    try { modelsJson = JSON.parse(readFileSync(modelsPath, 'utf-8')) } catch {}
+    modelsJson.providers = modelsJson.providers || {}
+    modelsJson.providers.ollama = {
+      baseUrl: 'http://localhost:11434/v1',
+      api: 'openai-completions',
+      apiKey: 'ollama',
+      compat: { supportsDeveloperRole: false, supportsReasoningEffort: false },
+      models: [{ id: 'llama3.2:latest', name: 'Llama 3.2 (Local)' }]
+    }
+    writeFileSync(modelsPath, JSON.stringify(modelsJson, null, 2), 'utf-8')
   }
 }
 
@@ -226,7 +245,7 @@ const env   = { ...process.env }
 // 사용 가능한 모든 키 env에 주입
 const availableModels = []
 for (const p of PROVIDERS) {
-  if (p.id === 'ollama') { availableModels.push(p.model); continue }
+  if (p.id === 'ollama') { availableModels.push('ollama/llama3.2:latest'); continue }
   const key = p.keyField === 'api_key' ? row.api_key : row.keys?.[p.keyField]
   if (key && p.envKey) {
     env[p.envKey] = key
