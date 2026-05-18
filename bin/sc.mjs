@@ -78,17 +78,38 @@ async function selectProvider(availableKeys) {
     process.exit(1)
   }
 
-  // --model 플래그로 바로 지정
+  // --model 플래그
   const modelFlag = args.indexOf('--model')
-  if (modelFlag !== -1 && args[modelFlag + 1]) {
+  if (modelFlag !== -1) {
     const id = args[modelFlag + 1]
-    const found = choices.find(p => p.id === id)
-    if (found) {
-      saveCfg({ ...cfg, provider: found.id })
-      return found
+    // id 지정: 바로 전환
+    if (id && !id.startsWith('--')) {
+      const found = choices.find(p => p.id === id)
+      if (found) {
+        saveCfg({ ...cfg, provider: found.id })
+        console.log(`✅ ${found.label} 로 전환됩니다.\n`)
+        return found
+      }
+      console.error(`모델 '${id}' 없음. 사용 가능: ${choices.map(p => p.id).join(', ')}`)
+      process.exit(1)
     }
-    console.error(`모델 '${id}' 없음. 사용 가능: ${choices.map(p => p.id).join(', ')}`)
-    process.exit(1)
+    // id 없음: 목록 보여주고 선택
+    console.log('\n모델을 선택하세요:\n')
+    choices.forEach((p, i) => {
+      const current = cfg.provider === p.id ? ' ← 현재' : ''
+      console.log(`  ${i + 1}. ${p.label}${current}`)
+    })
+    const rl2 = createInterface({ input: process.stdin, output: process.stdout })
+    const ans2 = await prompt(rl2, '\n번호: ')
+    rl2.close()
+    const idx2 = parseInt(ans2) - 1
+    if (isNaN(idx2) || idx2 < 0 || idx2 >= choices.length) {
+      console.error('잘못된 선택'); process.exit(1)
+    }
+    const picked = choices[idx2]
+    saveCfg({ ...cfg, provider: picked.id })
+    console.log(`✅ ${picked.label} 로 전환됩니다.\n`)
+    return picked
   }
 
   // 저장된 프로바이더가 있으면 바로 사용
