@@ -64,6 +64,7 @@ async function getMember() {
 // ── 프로바이더 선택 ───────────────────────────────────────────────────────────
 async function selectProvider(availableKeys) {
   const cfg = loadCfg()
+  const args = process.argv.slice(2)
 
   const options = PROVIDERS.map(p => {
     if (p.id === 'ollama') return { ...p, available: true }
@@ -71,10 +72,22 @@ async function selectProvider(availableKeys) {
     return { ...p, available: !!key, apiKey: key }
   })
 
-  // 사용 가능한 것만 + Ollama
   const choices = options.filter(p => p.available)
   if (!choices.length) {
     console.error(`키 없음. ${SC_URL} 에서 API 키를 먼저 등록하세요.`)
+    process.exit(1)
+  }
+
+  // --model 플래그로 바로 지정
+  const modelFlag = args.indexOf('--model')
+  if (modelFlag !== -1 && args[modelFlag + 1]) {
+    const id = args[modelFlag + 1]
+    const found = choices.find(p => p.id === id)
+    if (found) {
+      saveCfg({ ...cfg, provider: found.id })
+      return found
+    }
+    console.error(`모델 '${id}' 없음. 사용 가능: ${choices.map(p => p.id).join(', ')}`)
     process.exit(1)
   }
 
