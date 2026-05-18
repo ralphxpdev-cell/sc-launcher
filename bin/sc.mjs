@@ -170,6 +170,27 @@ if (!piOk) {
   execSync('npm install -g @earendil-works/pi-coding-agent', { stdio: 'inherit' })
 }
 
+// 3-1. Ollama 선택 시 자동 설치
+if (provider.id === 'ollama') {
+  let ollamaOk = false
+  try { execSync('ollama --version', { stdio: 'ignore' }); ollamaOk = true } catch {}
+  if (!ollamaOk) {
+    console.log('📦 Ollama 설치 중...')
+    if (process.platform === 'win32') {
+      console.error('Windows는 https://ollama.com/download 에서 직접 설치해주세요.')
+      process.exit(1)
+    }
+    execSync('curl -fsSL https://ollama.com/install.sh | sh', { stdio: 'inherit' })
+  }
+  // 모델 없으면 자동 pull
+  try {
+    execSync('ollama list', { stdio: 'ignore' })
+  } catch {
+    console.log('📦 Ollama 모델(llama3.2) 다운로드 중... (처음 한 번만)')
+    execSync('ollama pull llama3.2', { stdio: 'inherit' })
+  }
+}
+
 // 4. 워크스페이스
 const workDir = join(homedir(), 'survey-corps', member)
 mkdirSync(workDir, { recursive: true })
